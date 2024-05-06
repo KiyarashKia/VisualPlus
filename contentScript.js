@@ -1,53 +1,89 @@
+// In contentScript.js
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.isFABActive !== undefined) {
+        console.log('Content script handling FAB visibility:', request.isFABActive);
+        if (request.isFABActive) {
+            createFAB();
+            fabContainer.style.display = 'flex';
+        } else {
+            fabContainer.style.display = 'none';
+        }
+    }
+});
+
+
+function createFAB() {
+    fabContainer = document.createElement('div');
+    fabContainer.id = 'fab-container';
+    fabContainer.style.position = 'fixed';
+    fabContainer.style.right = '20px';
+    fabContainer.style.bottom = '20px';
+    fabContainer.style.display = 'none'; // Start hidden
+    document.body.appendChild(fabContainer);
+
+    // Add buttons here as previously described
+}
+
+
+
+// Function to apply or toggle dark theme
 function toggleTheme() {
     document.body.classList.toggle('dark-theme');
 }
 
-
-// Font Resize
-const originalFontSize = window.getComputedStyle(document.body).fontSize;
-let currentFontSize = parseFloat(originalFontSize);
-let fontSizeIncreased = false;
-
+// Function to adjust the font size
 function adjustFontSize() {
-    if (!fontSizeIncreased) {
+    let currentFontSize = parseFloat(window.getComputedStyle(document.body).fontSize);
+    // Toggle between increased size and normal size, reset on third click
+    if (!document.body.dataset.fontSizeIncreased || document.body.dataset.fontSizeIncreased === 'reset') {
         document.body.style.fontSize = `${currentFontSize * 1.1}px`;
-    fontSizeIncreased = true;
+        document.body.dataset.fontSizeIncreased = 'increased';
+    } else if (document.body.dataset.fontSizeIncreased === 'increased') {
+        document.body.style.fontSize = `${currentFontSize * 1.1 * 1.1}px`; // Another increment
+        document.body.dataset.fontSizeIncreased = 'reset';
     } else {
-        document.body.style.fontSize = originalFontSize; // Reset to original
-        fontSizeIncreased = false; 
+        document.body.style.fontSize = ''; // Reset to stylesheet value
+        document.body.dataset.fontSizeIncreased = 'reset';
     }
 }
-function toggleContrast () {
+
+// Function to toggle high contrast
+function toggleContrast() {
     document.body.classList.toggle('high-contrast');
 }
 
-const styleSheet = document.createElement('style');
-styleSheet.innerText = `
-    .dark-theme {
-        background-color: #333;
-        color: #eee;
-        filter: invert(1) hue-rotate(180deg);
-    }
-    .dark-theme img {
-        filter: invert(1) hue-rotate(180deg);
-    }
-    .high-contrast {
-        filter: contrast(2);
-    }
-`;
-document.head.appendChild(styleSheet);
+// Injecting buttons into the web page
+document.addEventListener('DOMContentLoaded', function () {
+    const fabContainer = document.createElement('div');
+    fabContainer.id = 'fab-container';
+    fabContainer.style.position = 'fixed';
+    fabContainer.style.right = '20px';
+    fabContainer.style.bottom = '20px';
+    fabContainer.style.display = 'flex';
+    fabContainer.style.flexDirection = 'column';
+    fabContainer.style.alignItems = 'center';
+    document.body.appendChild(fabContainer);
 
+    // Create a button for each function
+    const themesBtn = document.createElement('button');
+    themesBtn.textContent = 'Toggle Theme';
+    themesBtn.onclick = toggleTheme;
+    fabContainer.appendChild(themesBtn);
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    switch (message.command) {
-        case 'toggle-theme':
-            toggleTheme();
-            break;
-        case 'adjust-font-size':
-            adjustFontSize();
-            break;
-        case 'toggle-contrast':
-            toggleContrast();
-            break;
-    }
+    const fontSizeBtn = document.createElement('button');
+    fontSizeBtn.textContent = 'Adjust Font Size';
+    fontSizeBtn.onclick = adjustFontSize;
+    fabContainer.appendChild(fontSizeBtn);
+
+    const contrastBtn = document.createElement('button');
+    contrastBtn.textContent = 'Toggle Contrast';
+    contrastBtn.onclick = toggleContrast;
+    fabContainer.appendChild(contrastBtn);
+});
+
+// In the content script
+document.addEventListener('DOMContentLoaded', () => {
+    chrome.storage.local.get('isFABActive', (data) => {
+        fabContainer.style.display = data.isFABActive ? 'flex' : 'none';
+    });
 });

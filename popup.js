@@ -1,35 +1,18 @@
-document.getElementById('fab-main').addEventListener('click', function() {
-    var items = document.getElementById('fab-items');
-    items.classList.toggle('hidden'); // Toggle visibility of action buttons
-});
+// In popup.js
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('toggleFAB');
+    chrome.storage.local.get('isFABActive', (data) => {
+        toggle.checked = data.isFABActive || false;
+    });
 
-document.getElementById('toggleTheme').addEventListener('click', function() {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        chrome.scripting.executeScript({
-            target: {tabId: tabs[0].id},
-            function: toggleTheme
+    toggle.addEventListener('change', () => {
+        chrome.storage.local.set({ isFABActive: toggle.checked });
+        // Sending message to the background script
+        chrome.runtime.sendMessage({ isFABActive: toggle.checked }, function(response) {
+            if (chrome.runtime.lastError) {
+                return;
+            }
+            console.log('Received response:', response);
         });
     });
 });
-
-document.getElementById('increaseFontSize').addEventListener('click', function() {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        chrome.scripting.executeScript({
-            target: {tabId: tabs[0].id},
-            function: increaseFontSize
-        });
-    });
-});
-
-document.getElementById('highContrast').addEventListener('click', function() {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        chrome.scripting.executeScript({
-            target: {tabId: tabs[0].id},
-            function: highContrast
-        });
-    });
-});
-
-function toggleTheme() { /* Implementation */ }
-function increaseFontSize() { /* Implementation */ }
-function highContrast() { /* Implementation */ }
