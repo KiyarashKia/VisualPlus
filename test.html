@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Button</title>
+<link rel="stylesheet" href="theme-normal.css" id="theme-style">
+<style>
+    body, html {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+    .fixed-button {
+        position: fixed;
+        bottom: 30px;
+        right: 50px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #222222;
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+    }
+    .small-buttons {
+        display: none;
+        position: fixed;
+        right: 30px;
+        bottom: 90px;
+    }
+    .small-button {
+        margin-bottom: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #008CBA;
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    /* Styles for contrast levels */
+    .normal-contrast {
+        filter: none;
+    }
+    .high-contrast {
+        filter: contrast(200%);
+    }
+    .low-contrast {
+        filter: grayscale(100%) brightness(90%);
+    }
+    /* Style for large cursor */
+    .large-cursor {
+        cursor: url('large-cursor.png'), auto;
+    }
+</style>
+</head>
+<body>
+<button class="fixed-button" onclick="toggleButtons()">+</button>
+<div class="small-buttons">
+    <button class="small-button" onclick="toggleContrast()">Contrast</button>
+    <button class="small-button" onclick="toggleTheme()">Theme</button>
+    <button class="small-button" onclick="toggleCursorSize()">Cursor Size</button>
+</div>
+
+<script>
+    function toggleButtons() {
+        var buttons = document.querySelector('.small-buttons');
+        buttons.style.display = buttons.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Toggle contrast settings
+    function toggleContrast() {
+        if (document.body.classList.contains('high-contrast')) {
+            document.body.classList.remove('high-contrast');
+            document.body.classList.add('normal-contrast');
+        } else {
+            document.body.classList.add('high-contrast');
+            document.body.classList.remove('normal-contrast');
+        }
+    }
+
+    // Toggle theme
+    function toggleTheme() {
+        var themeLink = document.getElementById('theme-style');
+        themeLink.href = themeLink.href.includes('light-theme.css') ? 'dark-theme.css' : 'light-theme.css';
+    }
+
+    // Toggle cursor size
+    function toggleCursorSize() {
+        document.body.classList.toggle('large-cursor');
+    }
+</script>
+</body>
+</html>
